@@ -9,7 +9,7 @@ slim = tf.contrib.slim
 
 #================ DATASET INFORMATION ======================
 #State dataset directory where the tfrecord files are located
-dataset_dir = '/media/6TB/cdiscount/tfrecord'
+dataset_dir = '/media/6TB/cdiscount/tfrecord-mini'
 
 #State where your log file is at. If it doesn't exist, create it.
 log_dir = './log'
@@ -41,16 +41,16 @@ file_pattern = 'cdiscount_%s_*.tfrecord'
 
 #Create a dictionary that will help people understand your dataset better. This is required by the Dataset class later.
 items_to_descriptions = {
-    'image': 'A 3-channel RGB coloured flower image that is either tulips, sunflowers, roses, dandelion, or daisy.',
-    'label': 'A label that is as such -- 0:daisy, 1:dandelion, 2:roses, 3:sunflowers, 4:tulips'
+    'image': 'A 3-channel RGB coloured cdiscount image.',
+    'label': 'A class id',
 }
 
 #================= TRAINING INFORMATION ==================
 #State the number of epochs to train
-num_epochs = 10
+num_epochs = 15
 
 #State your batch size
-batch_size = 8
+batch_size = 6
 
 #Learning rate information and configuration (Up to you to experiment)
 initial_learning_rate = 0.0002
@@ -59,7 +59,7 @@ num_epochs_before_decay = 2
 
 #============== DATASET LOADING ======================
 #We now create a function that creates a Dataset class which will give us many TFRecord files to feed in the examples into a queue in parallel.
-def get_split(split_name, dataset_dir, file_pattern=file_pattern, file_pattern_for_counting='flowers'):
+def get_split(split_name, dataset_dir, file_pattern=file_pattern, file_pattern_for_counting='cdiscount'):
     '''
     Obtains the split - training or validation - to create a Dataset class for feeding the examples into a queue later on. This function will
     set up the decoder and dataset information all into one Dataset class so that you can avoid the brute work later on.
@@ -227,7 +227,6 @@ def run():
         accuracy, accuracy_update = tf.contrib.metrics.streaming_accuracy(predictions, labels)
         metrics_op = tf.group(accuracy_update, probabilities)
 
-
         #Now finally create all the summaries you need to monitor and group them into one summary op.
         tf.summary.scalar('losses/Total_Loss', total_loss)
         tf.summary.scalar('accuracy', accuracy)
@@ -245,7 +244,8 @@ def run():
             time_elapsed = time.time() - start_time
 
             #Run the logging to print some results
-            logging.info('global step %s: loss: %.4f (%.2f sec/step)', global_step_count, total_loss, time_elapsed)
+            if global_step % 10 == 0:
+                logging.info('global step %s: loss: %.4f (%.2f sec/step)', global_step_count, total_loss, time_elapsed)
 
             return total_loss, global_step_count
 
@@ -256,7 +256,6 @@ def run():
 
         #Define your supervisor for running a managed session. Do not run the summary_op automatically or else it will consume too much memory
         sv = tf.train.Supervisor(logdir = log_dir, summary_op = None, init_fn = restore_fn)
-
 
         #Run the managed session
         with sv.managed_session() as sess:

@@ -1,13 +1,13 @@
 import random
 import tensorflow as tf
-from dataset_utils import _dataset_exists, _get_filenames_and_classes, _convert_dataset
+from dataset_utils import _dataset_exists, _get_filenames_and_classes, _convert_dataset, write_label_file
 import os
 
 #====================================================DEFINE YOUR ARGUMENTS=======================================================================
 flags = tf.app.flags
 
 # State your dataset directory
-flags.DEFINE_string('dataset_dir', '/media/6TB/cdiscount/images/train', 'String: Your dataset directory')
+flags.DEFINE_string('dataset_dir', '/media/6TB/cdiscount/images/train-trimmed', 'String: Your dataset directory')
 
 # State your output tfrecord directory
 flags.DEFINE_string('tfrecord_dir', '/media/6TB/cdiscount/tfrecord', 'String: Your output directory')
