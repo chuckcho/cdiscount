@@ -9,7 +9,7 @@ slim = tf.contrib.slim
 
 #================ DATASET INFORMATION ======================
 #State dataset directory where the tfrecord files are located
-dataset_dir = '/media/6TB/cdiscount/tfrecord-mini'
+dataset_dir = '/media/6TB/cdiscount/tfrecord'
 
 #State where your log file is at. If it doesn't exist, create it.
 log_dir = './log'
@@ -22,6 +22,12 @@ image_size = 299
 
 #State the number of classes to predict:
 num_classes = 5270
+
+# How often show loss
+display_step = 20
+
+# How often save loss in log
+summary_save_step = 200
 
 '''
 #State the labels file and read it
@@ -47,10 +53,10 @@ items_to_descriptions = {
 
 #================= TRAINING INFORMATION ==================
 #State the number of epochs to train
-num_epochs = 15
+num_epochs = 10
 
 #State your batch size
-batch_size = 6
+batch_size = 4
 
 #Learning rate information and configuration (Up to you to experiment)
 initial_learning_rate = 0.0002
@@ -244,7 +250,7 @@ def run():
             time_elapsed = time.time() - start_time
 
             #Run the logging to print some results
-            if global_step % 10 == 0:
+            if global_step_count % display_step == 0:
                 logging.info('global step %s: loss: %.4f (%.2f sec/step)', global_step_count, total_loss, time_elapsed)
 
             return total_loss, global_step_count
@@ -275,7 +281,7 @@ def run():
                     print 'Labels:\n:', labels_value
 
                 #Log the summaries every 10 step.
-                if step % 10 == 0:
+                if step % summary_save_step == 0:
                     loss, _ = train_step(sess, train_op, sv.global_step)
                     summaries = sess.run(my_summary_op)
                     sv.summary_computed(sess, summaries)
@@ -290,7 +296,6 @@ def run():
 
             #Once all the training has been done, save the log files and checkpoint model
             logging.info('Finished training! Saving model to disk now.')
-            # saver.save(sess, "./flowers_model.ckpt")
             sv.saver.save(sess, sv.save_path, global_step = sv.global_step)
 
 
